@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài Giảng: Coaching Là Gì?</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --secondary-color: #818cf8;
+            --accent-color: #f59e0b;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .slide-container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+        .slide {
+            background-color: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            width: 90%;
+            max-width: 1200px;
+            height: 85vh;
+            padding: 3rem;
+            opacity: 0;
+            transform: scale(0.95);
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .slide.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .slide-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-right: 1rem;
+        }
+        .slide-title {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 0.75rem;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+        }
+
+        /* Drag and Drop Specific Styles */
+        .drag-source, .drop-target {
+            border: 2px dashed #9ca3af;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            min-height: 5rem;
+            transition: background-color 0.2s;
+        }
+        .drag-item {
+            cursor: grab;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 0.75rem 1.25rem;
+            margin: 0.5rem 0;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.1s;
+        }
+        .drag-item:active {
+            cursor: grabbing;
+        }
+        .drop-target.hover {
+            background-color: #eff6ff;
+            border-color: var(--primary-color);
+        }
+        .feedback-correct {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        .feedback-incorrect {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div id="app" class="slide-container">
+        <!-- Slides will be rendered here -->
+    </div>
+
+    <div class="fixed bottom-0 left-0 right-0 p-4 flex justify-between items-center bg-white shadow-lg">
+        <button id="prevBtn" onclick="prevSlide()" class="bg-gray-300 text-gray-800 px-6 py-2 rounded-full font-semibold hover:bg-gray-400 transition duration-300 disabled:opacity-50" disabled>
+            < Prev
+        </button>
+        <span id="slideIndicator" class="text-lg font-mono text-gray-700">1 / 30</span>
+        <button id="nextBtn" onclick="nextSlide()" class="bg-indigo-600 text-white px-6 py-2 rounded-full font-semibold hover:bg-indigo-700 transition duration-300 disabled:opacity-50">
+            Next >
+        </button>
+    </div>
+
+    <script>
+        // GLOBAL STATE
+        let currentSlideIndex = 0;
+        const totalSlides = 30;
+
+        // Utility to generate a simple icon SVG
+        const svgIcon = (path, size = 6) => `
+            <svg class="w-${size} h-${size} inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${path}"></path>
+            </svg>`;
+
+        // Data for all 30 slides
+        const slides = [
+            // SLIDE 1: Tương lai của Coaching (Future)
+            { 
+                title: "Slide 1: TƯƠNG LAI CỦA COACHING", 
+                content: `
+                    <div class="space-y-6 text-gray-700">
+                        <h2 class="text-4xl font-extrabold text-indigo-700 animate-pulse">Huấn luyện: Xu hướng tất yếu của Thế kỷ 21</h2>
+                        <ul class="list-disc list-inside space-y-3 text-xl leading-relaxed">
+                            <li>${svgIcon('M9.75 17L9 20l-1 1h8l-1-1l-.75-3M3 17h18l-1.5-4m-16.5 0h15m-14 0l-2-4m17 4l2-4m-10.5 4h5.5m-3.5 0L10 9l3-4l3 4L13.5 13')} \
+                                <strong class="text-red-500">Tăng tốc độ thay đổi:</strong> Nhu cầu thích nghi cá nhân và tổ chức ngày càng cao.</li>
+                            <li>${svgIcon('M13 10V3L4 14h7v7l9-11h-7z')} \
+                                <strong class="text-green-500">Phát triển Toàn diện:</strong> Chuyển từ đào tạo kỹ năng sang khai thác tiềm năng.</li>
+                            <li>${svgIcon('M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m6 0a9 9 0 01-9-9m18 9a9 9 0 00-9-9m-9 9h6m-3 0a9 9 0 01-9-9')} \
+                                <strong class="text-yellow-500">Toàn cầu hóa & Công nghệ:</strong> Coaching xuyên biên giới và ứng dụng AI/Công nghệ.</li>
+                        </ul>
+                        <p class="text-2xl italic font-light mt-8">Tương lai của Coaching là sự tích hợp sâu rộng vào văn hóa lãnh đạo và phát triển cá nhân.</p>
+                    </div>
+                `, 
+                type: 'static' 
+            },
+
+            // SLIDE 2: Sức mạnh của 1-1
+            { 
+                title: "Slide 2: SỨC MẠNH CỦA SỰ ĐỒNG HÀNH 1-1", 
+                content: `
+                    <div class="grid grid-cols-2 gap-8 text-gray-700">
+                        <div class="space-y-4">
+                            <h3 class="text-2xl font-bold text-indigo-500">1. Tập trung Tuyệt đối</h3>
+                            <p class="text-lg">Coach và Coachee (người được huấn luyện) hoàn toàn tập trung vào mục tiêu và thách thức duy nhất của Coachee, không bị phân tán bởi nhu cầu nhóm.</p>
+                            
+                            <h3 class="text-2xl font-bold text-indigo-500">2. Cá nhân hóa Tối đa</h3>
+                            <p class="text-lg">Thiết kế lộ trình, công cụ và câu hỏi chuyên biệt, phù hợp 100% với bối cảnh, tính cách và tốc độ phát triển của cá nhân.</p>
+                        </div>
+                        <div class="space-y-4">
+                            <h3 class="text-2xl font-bold text-indigo-500">3. An toàn và Tin cậy</h3>
+                            <p class="text-lg">Không gian bảo mật tuyệt đối giúp Coachee mở lòng chia sẻ những điều sâu sắc và nhạy cảm nhất, thúc đẩy sự tự nhận thức.</p>
+                            <div class="flex items-center justify-center p-4 bg-yellow-100 rounded-lg">
+                                ${svgIcon('M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z', 10)}
+                                <span class="text-xl font-medium text-yellow-800">Bảo Mật là chìa khóa của sự chuyển hóa cá nhân.</span>
+                            </div>
+                        </div>
+                    </div>
+                `, 
+                type: 'static' 
+            },
+
+            // SLIDE 3: Sức mạnh của Transformation
+            { 
+                title: "Slide 3: SỨC MẠNH CỦA SỰ CHUYỂN HÓA (TRANSFORMATION)", 
+                content: `
+                    <div class="text-center space-y-8">
+                        <p class="text-3xl font-light text-gray-600">Coaching không chỉ giải quyết vấn đề. Coaching kiến tạo một <strong class="text-pink-600">Con Người Mới</strong>.</p>
+                        
+                        <div class="grid grid-cols-3 gap-6">
+                            <div class="p-6 bg-indigo-50 rounded-xl shadow-lg transform transition duration-500 hover:scale-105">
+                                <span class="text-5xl block mb-3">🔥</span>
+                                <h3 class="text-xl font-bold text-indigo-700">Level 1: Giải quyết Tình huống</h3>
+                                <p class="text-gray-600 text-sm">Tìm giải pháp cho một vấn đề cụ thể, tức thời.</p>
+                            </div>
+                            <div class="p-6 bg-indigo-100 rounded-xl shadow-lg transform transition duration-500 hover:scale-105">
+                                <span class="text-5xl block mb-3">🛠️</span>
+                                <h3 class="text-xl font-bold text-indigo-700">Level 2: Phát triển Kỹ năng</h3>
+                                <p class="text-gray-600 text-sm">Học hỏi và thành thạo các hành vi mới.</p>
+                            </div>
+                            <div class="p-6 bg-indigo-200 rounded-xl shadow-lg transform transition duration-500 hover:scale-105">
+                                <span class="text-5xl block mb-3">🚀</span>
+                                <h3 class="text-xl font-bold text-indigo-700">Level 3: CHUYỂN HÓA CĂN BẢN</h3>
+                                <p class="text-gray-600 text-sm">Thay đổi tư duy, niềm tin cốt lõi, và nhận diện bản thân để đạt được cấp độ thành công mới.</p>
+                            </div>
+                        </div>
+                        
+                        <p class="text-2xl font-semibold text-gray-800 mt-8">Mục tiêu của Coaching là đưa Coachee lên <span class="text-red-600">Level 3</span>.</p>
+                    </div>
+                `, 
+                type: 'static' 
+            },
+
+            // SLIDE 4: Định nghĩa chính thức
+            { 
+                title: "Slide 4: ĐỊNH NGHĨA CHÍNH THỨC CỦA COACHING", 
+                content: `
+                    <div class="space-y-6 text-gray-700">
+                        <p class="text-xl italic">Theo Liên đoàn Huấn luyện Quốc tế (ICF):</p>
+                        <blockquote class="border-l-4 border-accent-color pl-6 py-2 text-2xl font-light text-gray-800 bg-gray-50 p-4 rounded-lg shadow-inner">
+                            "Coaching là việc đồng hành cùng khách hàng trong một quá trình tư duy và sáng tạo, nhằm truyền cảm hứng để họ tối đa hóa tiềm năng cá nhân và nghề nghiệp của mình."
+                        </blockquote>
+                        <div class="grid grid-cols-2 gap-6 pt-4">
+                            <div class="flex items-start">
+                                ${svgIcon('M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01', 8)}
+                                <div>
+                                    <h4 class="font-bold text-indigo-600">Đồng hành (Partnership)</h4>
+                                    <p class="text-sm">Mối quan hệ bình đẳng, không áp đặt.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                ${svgIcon('M13 10V3L4 14h7v7l9-11h-7z', 8)}
+                                <div>
+                                    <h4 class="font-bold text-indigo-600">Khai thác Tiềm năng (Maximization)</h4>
+                                    <p class="text-sm">Tập trung vào giải pháp và tương lai, không tập trung vào vấn đề.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `, 
+                type: 'static' 
+            },
+
+            // SLIDE 5: 3 Kỹ năng quan trọng trong coaching
+            { 
+                title: "Slide 5: 3 KỸ NĂNG THEN CHỐT CỦA COACH", 
+                content: `
+                    <div class="grid grid-cols-3 gap-6 text-center">
+                        <div class="p-6 bg-white rounded-xl shadow-lg border-b-4 border-red-500">
+                            <span class="text-6xl block mb-4">👂</span>
+                            <h3 class="text-2xl font-bold text-gray-800">Lắng Nghe Chủ Động</h3>
+                            <p class="text-gray-600 mt-2">Nghe không chỉ bằng tai, mà bằng cả trái tim và trực giác.</p>
+                        </div>
+                        <div class="p-6 bg-white rounded-xl shadow-lg border-b-4 border-green-500">
+                            <span class="text-6xl block mb-4">❓</span>
+                            <h3 class="text-2xl font-bold text-gray-800">Đặt Câu Hỏi Khai Phóng</h3>
+                            <p class="text-gray-600 mt-2">Câu hỏi mở, không phán xét, khơi gợi nhận thức.</p>
+                        </div>
+                        <div class="p-6 bg-white rounded-xl shadow-lg border-b-4 border-blue-500">
+                            <span class="text-6xl block mb-4">💡</span>
+                            <h3 class="text-2xl font-bold text-gray-800">Trực Giác & Góc Nhìn</h3>
+                            <p class="text-gray-600 mt-2">Dùng trực giác để thách thức và đưa ra các quan sát sâu sắc.</p>
+                        </div>
+                    </div>
+                `, 
+                type: 'static' 
+            },
+
+            // SLIDE 6: Kỹ năng Lắng nghe
+            { 
+                title: "Slide 6: KỸ NĂNG LẮNG NGHE CHỦ ĐỘNG (LEVEL 3)", 
+                content: `
+                    <div class="grid grid-cols-2 gap-8 text-gray-700">
+                        <div class="space-y-4">
+                            <h3 class="text-2xl font-bold text-indigo-600">3 Cấp độ Lắng nghe</h3>
+                            <ul class="list-disc list-inside space-y-2 text-lg">
+                                <li><strong>Cấp độ 1:</strong> Lắng nghe nội tâm (Tập trung vào mình).</li>
+                                <li><strong>Cấp độ 2:</strong> Lắng nghe tập trung (Tập trung vào Coachee).</li>
+                                <li><strong>Cấp độ 3:</strong> Lắng nghe Toàn diện (Nghe Coachee trong bối cảnh môi trường).</li>
+                            </ul>
+                            <p class="mt-4 text-xl font-semibold">Coach chuyên nghiệp luôn hoạt động ở Cấp độ 3.</p>
+                        </div>
+                        <div class="space-y-4 bg-yellow-50 p-6 rounded-lg shadow-inner">
+                            <h3 class="text-2xl font-bold text-yellow-800">Thực hành L3</h3>
+                            <ul class="list-disc list-inside space-y-2 text-lg">
+                                <li>Nghe Giọng điệu, tốc độ, ngôn ngữ cơ thể.</li>
+                                <li>Nghe những từ ngữ được LẶP LẠI (Giá trị cốt lõi).</li>
+                                <li>Nghe những khoảng LẶNG (Điểm tắc nghẽn).</li>
+                            </ul>
+                        </div>
+                    </div>
+                `, 
+                type: 'static' 
+            },
+
+            // SLIDE 7: Kỹ năng Đặt câu hỏi
+            { 
+                title: "Slide 7: KỸ NĂNG ĐẶT CÂU HỎI KHAI PHÓNG", 
+                content: `
+                    <div class="space-y-6 text-gray-700">
+                        <p class="text-2xl font-light text-gray-600">Coach không đưa ra câu trả lời. Coach đặt những câu hỏi mà <strong class="text-red-500">Coachee chưa từng nghĩ đến</strong>.</p>
+                        <div class="grid grid-cols-3 gap-6">
+                            <div class="p-4 bg-green-50 rounded-lg">
+                                <h4 class="font-bold text-green-700">Mở vs. Đóng</h4>
+                                <p class="text-sm">Luôn ưu tiên câu hỏi mở (Bắt đầu bằng "Thế nào", "Tại sao", "Điều gì").</p>
+                            </div>
+                            <div class="p-4 bg-green-50 rounded-lg">
+                                <h4 class="font-bold text-green-700">Tập trung vào HÀNH ĐỘNG</h4>
+                                <p class="text-sm">"Bước tiếp theo bạn sẽ làm gì?" thay vì "Bạn có muốn làm không?".</p>
+                            </div>
+                            <div class="p-4 bg-green-50 rounded-lg">
+                                <h4 class="font-bold text-green-700">Tập trung vào CẢM XÚC</h4>
+                                <p class="text-sm">"Cảm xúc nào đang chi phối bạn?" để tìm ra động lực cốt lõi.</p>
+                            </div>
+                        </div>
+                        <p class="text-xl italic pt-4">"Năng lượng của hệ thống nằm ở câu hỏi, không phải câu trả lời." - Peter Block</p>
+                    </div>
+                `, 
+                type: 'static' 
+            },
+
+            // SLIDE 8: Bài tập: Kéo và Thả (Drag and Drop) - Phân biệt
+            { 
+                title: "Slide 8: BÀI TẬP TƯƠNG TÁC: COACHING, MENTORING, HAY THERAPY?", 
+                content: `
+                    <div class="space-y-4">
+                        <p class="text-lg mb-4 text-gray-700">Kéo thả các tuyên bố sau vào đúng ô phân loại:</p>
+                        <div id="dragSource" class="drag-source grid grid-cols-2 gap-4 bg-gray-100 p-4 mb-8">
+                            <div class="drag-item" data-category="Coaching" draggable="true">A: Tập trung vào TƯƠNG LAI và HÀNH ĐỘNG</div>
+                            <div class="drag-item" data-category="Mentoring" draggable="true">B: Cung cấp KINH NGHIỆM và LỜI KHUYÊN</div>
+                            <div class="drag-item" data-category="Therapy" draggable="true">C: Phân tích NGUYÊN NHÂN SÂU XA từ QUÁ KHỨ</div>
+                            <div class="drag-item" data-category="Coaching" draggable="true">D: Coachee là CHUYÊN GIA về cuộc đời mình</div>
+                            <div class="drag-item" data-category="Therapy" draggable="true">E: Xử lý sang chấn tâm lý và bệnh lý</div>
+                            <div class="drag-item" data-category="Mentoring" draggable="true">F: Quan hệ thường là CẤP TRÊN - CẤP DƯỚI</div>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="drop-target p-4 border-2 border-indigo-400 bg-indigo-50" data-target="Coaching">
+                                <h4 class="font-bold text-xl text-indigo-700 mb-2">Huấn Luyện (Coaching)</h4>
+                            </div>
+                            <div class="drop-target p-4 border-2 border-green-400 bg-green-50" data-target="Mentoring">
+                                <h4 class="font-bold text-xl text-green-700 mb-2">Cố Vấn (Mentoring)</h4>
+                            </div>
+                            <div class="drop-target p-4 border-2 border-red-400 bg-red-50" data-target="Therapy">
+                                <h4 class="font-bold text-xl text-red-700 mb-2">Trị Liệu (Therapy)</h4>
+                            </div>
+                        </div>
+                        <div id="dragDropFeedback" class="text-center mt-4 text-lg font-semibold"></div>
+                        <button onclick="checkDragDrop()" class="bg-accent-color text-white px-4 py-2 rounded-lg mt-4 hover:bg-yellow-600 transition">Kiểm tra Đáp án</button>
+                    </div>
+                `, 
+                type: 'interactive' 
+            },
+
+            // SLIDE 9: Kỹ năng Phản hồi và Góc nhìn
+            { 
+                title: "Slide 9: KỸ NĂNG PHẢN HỒI VÀ ĐƯA RA GÓC NHÌN", 
+                content: `
+                    <div class="space-y-6 text-gray-700">
+                        <h3 class="text-2xl font-bold text-indigo-600">Phản hồi (Feedback) của Coach</h3>
+                        <ul class="list-disc list-inside space-y-3 text-lg">
+                            <li><strong>Không Phán xét:</strong> Luôn mô tả hành vi/ngôn từ, không đánh giá nhân cách. (Ví dụ: "Tôi nghe bạn dùng từ 'thất bại' 5 lần" thay vì "Bạn có vẻ tiêu cực").</li>
+                            <li><strong>Dựa trên Dữ liệu:</strong> Trích dẫn lại chính xác lời Coachee đã nói.</li>
+                            <li><strong>Mục đích Khai Phóng:</strong> Mục tiêu là để Coachee thấy được 'điểm mù' của mình.</li>
+                        </ul>
+                        <div class="bg-blue-50 p-6 rounded-lg">
+                            <h4 class="font-bold text-xl text-blue-700">Đưa ra Góc nhìn (Perspective)</h4>
+                            <p class="text-lg mt-2 italic">Là đặt Coachee vào một khuôn khổ tư duy mới. "Nếu bạn là Sếp của mình, bạn sẽ nói gì với mình lúc này?"</p>
+                        </div>
+                    </div>
+                `, 
+                type: 'static' 
+            },
+            
+            // SLIDE 10: Marketing trong coaching
+            { 
+                title: "Slide 10: CHIẾN LƯỢC MARKETING TRONG COACHING", 
+                content: `
+                    <div class="space-y-6 text-gray-700">
+                        <h3 class="text-2xl font-bold text-indigo-600">Khác biệt với Marketing sản phẩm</h3>
+                        <ul class="list-disc list-inside space-y-3 text-lg">
+                            <li><strong class="text-red-500">Bán sự Chuyển hóa, không bán giờ:</strong> Khách hàng mua kết quả (tự tin, thăng tiến), không mua 10 buổi Coach.</li>
+                            <li><strong class="text-red-500">Marketing bằng Kết nối:</strong> Sự tin tưởng cá nhân quan trọng hơn quảng cáo đại trà.</li>
+                            <li><strong class="text-red-500">Xây dựng Thương hiệu Chuyên gia:</strong> Định vị rõ ràng (Coach Lãnh đạo, Coach Hẹn hò, Coach Tài chính...).</li>
+                        </ul>
+                        <p class="text-xl font-semibold mt-4">Nội dung giá trị miễn phí (Webinar, Blog) là cầu nối tạo ra niềm tin đầu tiên.</p>
+                    </div>
+                `, 
+                type: 'static' 
+            },
+
+            // SLIDE 11: Cách tiếp cận khách hàng
+            { 
+                title: "Slide 11: PHỄU TIẾP CẬN KHÁCH HÀNG (ACQUISITION FUNNEL)", 
+                content: `
+                    <div class="text-center space-y-6">
+                        <div class="flex flex-col items-center">
+                            <div class="p-4 bg-red-100 rounded-full w-40 h-40 flex items-center justify-center border-4 border-red-400 transform transition duration-500 hover:scale-105">
+                                <span class="text-2xl font-bold text-red-700">1. Nhận biết (Awareness)</span>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-2">Tạo nội dung, tham gia cộng đồng.</p>
+                        </div>
+                        
+                        ${svgIcon('M19 14l-7 7m0 0l-7-7m7 7V3', 8)}
+
+                        <div class="flex flex-col items-center">
+                            <div class="p-4 bg-yellow-100 rounded-full w-40 h-40 flex items-center justify-center border-4 border-yellow-400 transform transition duration-500 hover:scale-105">
+                                <span class="text-2xl font-bold text-yellow-700">2. Cân nhắc (Consideration)</span>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-2">Buổi Coach thử miễn phí, Case Study, Testimonials.</p>
+                        </div>
+
+                        ${svgIcon('M19 14l-7 7m0 0l-7-7m7 7V3', 8)}
+
+                        <div class="flex flex-col items-center">
+                            <div class="p-4 bg-green-100 rounded-full w-40 h-40 flex items-center justify-center border-4 border-green-400 transform transition duration-500 hover:scale-105">
+                                <span class="text-2xl font-bold text-green-700">3. Chuyển đổi (Conversion)</span>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-2">Ký hợp đồng, thanh toán, bắt đầu hành trình.</p>
+                        </div>
+                    </div>
+                `, 
+                type: 'static' 
+            },
+
+            // SLIDE 12-30: Tiếp tục nội dung...
+            // SLIDE 12: Đạo đức & Tiêu chuẩn
+            { 
+                title: "Slide 12: ĐẠO ĐỨC NGHỀ NGHIỆP VÀ BẢO MẬT", 
+                content: `
+                    <div class="space-y-4 text-gray-700">
+                        <h3 class="text-2xl font-bold text-red-600">Quy tắc Cốt lõi (ICF Code of Ethics)</h3>
+                        <ul class="list-disc list-inside space-y-2 text-lg">
+                            <li><strong>Chính trực:</strong> Không hứa hẹn những kết quả phi thực tế.</li>
+                            <li><strong>Bảo mật:</strong> Tuyệt đối không chia sẻ thông tin Coachee (trừ khi có nguy cơ đe dọa tính mạng).</li>
+                            <li><strong>Giới hạn Phạm vi:</strong> Biết khi nào cần chuyển Coachee sang Mentor hoặc Therapist.</li>
+                        </ul>
+                    </div>
+                `, 
+                type: 'static' 
+            },
+            // SLIDE 13: Xây dựng Hợp đồng Coaching
+            { 
+                title: "Slide 13: HỢP ĐỒNG COACHING (COACHING AGREEMENT)", 
+                content: `
+                    <ul class="list-disc list-inside space-y-3 text-lg text-gray-700">
+                        <li><strong>Mục tiêu:</strong> Định nghĩa rõ ràng kết quả mong muốn của Coachee (SMART goals).</li>
+                        <li><strong>Thời gian & Tần suất:</strong> Số buổi, thời lượng mỗi buổi, và tổng thời gian hợp đồng.</li>
+                        <li><strong>Vai trò & Trách nhiệm:</strong> Coach đồng hành, Coachee hành động.</li>
+                        <li><strong>Quy tắc Hủy bỏ:</strong> Chính sách hủy/hoãn buổi làm việc.</li>
+                        <li><strong>Thanh toán:</strong> Phí, phương thức, và điều khoản hoàn tiền (nếu có).</li>
+                    </ul>
+                `, 
+                type: 'static' 
+            },
+            // SLIDE 14: Mô hình Coaching (GROW)
+            { 
+                title: "Slide 14: MÔ HÌNH COACHING CƠ BẢN (GROW)", 
+                content: `
+                    <div class="grid grid-cols-4 gap-4 text-center">
+                        <div class="p-4 bg-indigo-200 rounded-lg"><span class="font-bold text-2xl block">G: Goal</span><p>Mục tiêu</p></div>
+                        <div class="p-4 bg-green-200 rounded-lg"><span class="font-bold text-2xl block">R: Reality</span><p>Thực tế hiện tại</p></div>
+                        <div class="p-4 bg-yellow-200 rounded-lg"><span class="font-bold text-2xl block">O: Options</span><p>Các lựa chọn</p></div>
+                        <div class="p-4 bg-red-200 rounded-lg"><span class="font-bold text-2xl block">W: Will/Way Forward</span><p>Ý chí/Hành động</p></div>
+                    </div>
+                    <p class="text-center mt-6 text-xl text-gray-600">GROW là khung sườn đơn giản nhất để dẫn dắt một buổi Coaching.</p>
+                `, 
+                type: 'static' 
+            },
+            // SLIDE 15: Các loại Coaching
+            { 
+                title: "Slide 15: CÁC LĨNH VỰC COACHING PHỔ BIẾN", 
+                content: `
+                    <div class="grid grid-cols-2 gap-4 text-lg">
+                        <ul class="list-disc list-inside space-y-2">
+                            <li><strong class="text-indigo-600">Life Coaching:</strong> Cân bằng cuộc sống, Mục tiêu cá nhân.</li>
+                            <li><strong class="text-indigo-600">Executive/Leadership Coaching:</strong> Kỹ năng lãnh đạo, Chiến lược tổ chức.</li>
+                            <li><strong class="text-indigo-600">Career Coaching:</strong> Phát triển sự nghiệp, Chuyển đổi công việc.</li>
+                        </ul>
+                        <ul class="list-disc list-inside space-y-2">
+                            <li><strong class="text-indigo-600">Health & Wellness Coaching:</strong> Dinh dưỡng, Thói quen lành mạnh.</li>
+                            <li><strong class="text-indigo-600">Team Coaching:</strong> Nâng cao hiệu suất và gắn kết đội nhóm.</li>
+                            <li><strong class="text-indigo-600">Financial Coaching:</strong> Quản lý tiền bạc, Tư duy thịnh vượng.</li>
+                        </ul>
+                    </div>
+                `, 
+                type: 'static' 
+            },
+            // SLIDE 16: Tự nhận thức của Coach
+            { 
+                title: "Slide 16: VAI TRÒ CỦA SỰ TỰ NHẬN THỨC CỦA COACH", 
+                content: `
+                    <p class="text-xl italic text-red-500 mb-4">"Bạn chỉ có thể đưa Coachee đến nơi mà bạn đã từng đến."</p>
+                    <ul class="list-decimal list-inside space-y-2 text-lg">
+                        <li><strong>Quản lý Ego:</strong> Đảm bảo không áp đặt trải nghiệm hoặc lời khuyên cá nhân.</li>
+                        <li><strong>Nhận diện Điểm mù:</strong> Liên tục tự Coach hoặc tìm Coach cho chính mình.</li>
+                        <li><strong>Sử dụng Bản thân:</strong> Dùng trực giác và cảm xúc của mình như một công cụ quan sát.</li>
+                    </ul>
+                `, 
+                type: 'static' 
+            },
+            // SLIDE 17: Phân tích khách hàng
+            { 
+                title: "Slide 17: PHÂN TÍCH CHÂN DUNG KHÁCH HÀNG LÝ TƯỞNG (ICP)", 
+                content: `
+                    <ul class="list-disc list-inside space-y-3 text-lg text-gray-700">
+                        <li><strong>Nhân khẩu học:</strong> Tuổi, Vị trí, Thu nhập.</li>
+                        <li><strong>Thách thức (Pain Points):</strong> Họ đang gặp vấn đề gì khiến họ không ngủ được?</li>
+                        <li><strong>Mục tiêu (Aspirations):</strong> Họ thực sự muốn đạt được điều gì trong 6-12 tháng tới?</li>
+                        <li><strong>Sẵn sàng chi trả:</strong> Họ coi Coaching là Chi phí hay Đầu tư?</li>
+                    </ul>
+                `, 
+                type: 'static' 
+            },
+            // SLIDE 18: Bài tập trắc nghiệm
+            { 
+                title: "Slide 18: BÀI TẬP TRẮC NGHIỆM: ĐẠO ĐỨC NGHỀ", 
+                content: `
+                    <div id="quizContent" class="space-y-6">
+                        <p class="text-xl font-semibold text-gray-700">Tình huống: Coachee của bạn nói rằng anh ấy đang có ý định bỏ trốn khỏi công ty với một số tài liệu mật. Phản ứng nào là PHÙ HỢP NHẤT với Đạo đức Coach?</p>
+                        
+                        <div class="space-y-3" role="radiogroup" aria-labelledby="quizQuestion">
+                            <label class="block p-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:bg-gray-50 cursor-pointer">
+                                <input type="radio" name="ethicsQuiz" value="A" class="mr-2">
+                                A. Nói với anh ấy rằng hành vi đó là sai trái và chấm dứt hợp đồng ngay lập tức.
+                            </label>
+                            <label class="block p-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:bg-gray-50 cursor-pointer">
+                                <input type="radio" name="ethicsQuiz" value="B" class="mr-2">
+                                B. Giữ im lặng tuyệt đối vì nguyên tắc bảo mật.
+                            </label>
+                            <label class="block p-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:bg-gray-50 cursor-pointer">
+                                <input type="radio" name="ethicsQuiz" value="C" class="mr-2">
+                                C. Đặt câu hỏi về hậu quả pháp lý và giá trị cá nhân của anh ấy (ĐÁP ÁN ĐÚNG).
+                            </label>
+                            <label class="block p-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:bg-gray-50 cursor-pointer">
+                                <input type="radio" name="ethicsQuiz" value="D" class="mr-2">
+                                D. Liên hệ với công ty của anh ấy để báo cáo.
+                            </label>
+                        </div>
+                        
+                        <button onclick="checkQuizAnswer('C')" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition">Gửi Đáp án</button>
+                        <div id="quizFeedback" class="mt-4 text-xl font-semibold"></div>
+                    </div>
+                `, 
+                type: 'interactive' 
+            },
+            // SLIDE 19: Định giá dịch vụ
+            { 
+                title: "Slide 19: ĐỊNH GIÁ DỊCH VỤ COACHING", 
+                content: `
+                    <ul class="list-disc list-inside space-y-3 text-lg text-gray-700">
+                        <li><strong>Không định giá theo giờ:</strong> Định giá theo Gói (Package) hoặc Theo Kết quả (Value-based pricing).</li>
+                        <li><strong>Giá trị Cảm nhận:</strong> Khách hàng của bạn sẵn sàng trả bao nhiêu cho sự chuyển hóa?</li>
+                        <li><strong>Cấu trúc Giá:</strong> Thường là 3-6 tháng, bao gồm các buổi Coach, hỗ trợ qua email/chat, và các công cụ/tài liệu đi kèm.</li>
+                    </ul>
+                `, 
+                type: 'static' 
+            },
+            // SLIDE 20: Tầm quan trọng của Hợp đồng
+            { 
+                title: "Slide 20: TẦM QUAN TRỌNG CỦA MỤC TIÊU (GOAL SETTING)", 
+                content: `
+                    <div class="bg-indigo-50 p-6 rounded-lg shadow-inner">
+                        <h3 class="text-2xl font-bold text-indigo-700 mb-3">Mục tiêu SMART là bắt buộc</h3>
+                        <p class="text-lg">Nếu Coachee không có mục tiêu rõ ràng (Specific, Measurable, Achievable, Relevant, Time-bound), buổi Coach sẽ trở nên vô định và không đạt hiệu quả chuyển hóa.</p>
+                    </div>
+                `, 
+                type: 'static' 
+            },
+            // SLIDE 21: Tóm tắt
+            { 
+                title: "Slide 21: TÓM TẮT CÁC ĐIỀU RĂN CỦA COACH", 
+                content: `
+                    <ul class="list-decimal list-inside space-y-3 text-xl font-medium text-gray-700">
+                        <li>Không cho lời khuyên (trừ khi được hỏi và có sự đồng ý).</li>
+                        <li>Luôn tin Coachee có câu trả lời.</li>
+                        <li>Lắng nghe nhiều hơn nói.</li>
+                        <li>Luôn giữ bí mật và tôn trọng biên giới đạo đức.</li>
+                    </ul>
+                `, 
+                type: 'static' 
+            },
+            
+            // SLIDE 22-30: Thêm các slides còn lại...
+            { title: "Slide 22: CÁC CÔNG CỤ COACHING BỔ TRỢ", content: "Sử dụng bánh xe cuộc đời, ma trận Eisenhower, hoặc công cụ khám phá giá trị cốt lõi để trực quan hóa thách thức.", type: 'static' },
+            { title: "Slide 23: VƯỢT QUA SỰ KHÁNG CỰ (RESISTANCE)", content: "Kháng cự là tín hiệu Coachee đang tiếp cận điểm mù lớn. Dùng kỹ năng lắng nghe và câu hỏi nhẹ nhàng để vượt qua.", type: 'static' },
+            { title: "Slide 24: COACHING VÀ MÔI TRƯỜNG LÀM VIỆC", content: "Ứng dụng Coaching vào Quản lý (Coaching Management Style) để tăng tính tự chủ của nhân viên.", type: 'static' },
+            { title: "Slide 25: KHẢ NĂNG ĐO LƯỜNG (MEASURING ROI)", content: "Xác định các chỉ số (KPIs) rõ ràng từ đầu để đo lường hiệu quả (ví dụ: Tăng 20% tự tin, thăng chức trong 6 tháng).", type: 'static' },
+            { title: "Slide 26: QUẢN LÝ NĂNG LƯỢNG TRONG BUỔI COACH", content: "Đảm bảo cả Coach và Coachee đều có năng lượng tích cực và tập trung trong suốt phiên làm việc.", type: 'static' },
+            { title: "Slide 27: CÔNG NGHỆ VÀ COACHING ONLINE", content: "Sử dụng các nền tảng video chất lượng cao và các công cụ ghi chú bảo mật.", type: 'static' },
+            { title: "Slide 28: KẾ HOẠCH PHÁT TRIỂN CỦA BẠN", content: "Lên kế hoạch 1 năm để phát triển kỹ năng Coach: Đọc sách, thực hành, tìm Coach/Mentor cho chính mình.", type: 'static' },
+            { title: "Slide 29: TẦM NHÌN CỦA BẠN VỀ COACHING", content: "Bài tập: Viết ra Tầm nhìn (Vision) của bạn với tư cách là một Coach.", type: 'exercise' },
+            { title: "Slide 30: CÂU HỎI & HÀNH ĐỘNG TIẾP THEO", content: "Xin cảm ơn! Hãy bắt đầu hành trình Coaching của bạn ngay hôm nay!", type: 'static' }
+        ];
+
+        // --- CORE SLIDE LOGIC ---
+
+        const app = document.getElementById('app');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const slideIndicator = document.getElementById('slideIndicator');
+
+        function renderSlide(index) {
+            // Remove all existing slides
+            app.innerHTML = '';
+            
+            // Get current slide data
+            const slideData = slides[index];
+
+            // Create the slide element
+            const slideElement = document.createElement('div');
+            slideElement.className = 'slide ' + (index === currentSlideIndex ? 'active' : '');
+            slideElement.innerHTML = `
+                <div class="slide-header">
+                    <h1 class="text-4xl slide-title">${slideData.title}</h1>
+                </div>
+                <div class="slide-content">
+                    ${slideData.content}
+                </div>
+                <!-- Slide footer with current index -->
+                <div class="absolute bottom-4 right-8 text-sm text-gray-500 font-mono">${index + 1}/${totalSlides}</div>
+            `;
+            
+            app.appendChild(slideElement);
+
+            // Update navigation
+            updateNavigation();
+
+            // Setup specific interactive handlers if applicable
+            if (slideData.type === 'interactive') {
+                if (index === 7) {
+                    setupDragDrop();
+                }
+                // Quiz (Slide 18) checkQuizAnswer is global
+            }
+        }
+
+        function updateNavigation() {
+            prevBtn.disabled = currentSlideIndex === 0;
+            nextBtn.disabled = currentSlideIndex === totalSlides - 1;
+            slideIndicator.textContent = `${currentSlideIndex + 1} / ${totalSlides}`;
+        }
+
+        window.nextSlide = function() {
+            if (currentSlideIndex < totalSlides - 1) {
+                currentSlideIndex++;
+                renderSlide(currentSlideIndex);
+            }
+        }
+
+        window.prevSlide = function() {
+            if (currentSlideIndex > 0) {
+                currentSlideIndex--;
+                renderSlide(currentSlideIndex);
+            }
+        }
+
+        // --- INTERACTIVE ELEMENTS LOGIC ---
+
+        // Logic for Slide 8 (Drag and Drop)
+        let draggedItem = null;
+
+        function setupDragDrop() {
+            const dragItems = document.querySelectorAll('.drag-item');
+            const dropTargets = document.querySelectorAll('.drop-target');
+
+            dragItems.forEach(item => {
+                item.addEventListener('dragstart', (e) => {
+                    draggedItem = e.target;
+                    e.dataTransfer.setData('text/plain', e.target.dataset.category);
+                    setTimeout(() => e.target.classList.add('opacity-50'), 0);
+                });
+                item.addEventListener('dragend', (e) => {
+                    e.target.classList.remove('opacity-50');
+                    draggedItem = null;
+                });
+            });
+
+            dropTargets.forEach(target => {
+                target.addEventListener('dragover', (e) => {
+                    e.preventDefault(); // Allow drop
+                    e.target.closest('.drop-target').classList.add('hover');
+                });
+
+                target.addEventListener('dragleave', (e) => {
+                    e.target.closest('.drop-target').classList.remove('hover');
+                });
+
+                target.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    const dropZone = e.target.closest('.drop-target');
+                    dropZone.classList.remove('hover');
+
+                    if (draggedItem && dropZone) {
+                        dropZone.appendChild(draggedItem);
+                        draggedItem.style.margin = '0.5rem 0'; // Re-apply margin style
+                    }
+                });
+            });
+        }
+
+        window.checkDragDrop = function() {
+            const dropTargets = document.querySelectorAll('.drop-target');
+            let allCorrect = true;
+            let correctCount = 0;
+            let totalItems = 0;
+
+            dropTargets.forEach(target => {
+                const targetCategory = target.dataset.target;
+                const items = target.querySelectorAll('.drag-item');
+                totalItems += items.length;
+
+                items.forEach(item => {
+                    const itemCategory = item.dataset.category;
+                    item.classList.remove('feedback-correct', 'feedback-incorrect');
+                    
+                    if (itemCategory === targetCategory) {
+                        item.classList.add('feedback-correct');
+                        correctCount++;
+                    } else {
+                        item.classList.add('feedback-incorrect');
+                        allCorrect = false;
+                    }
+                });
+            });
+
+            const feedback = document.getElementById('dragDropFeedback');
+            if (allCorrect && totalItems === 6) {
+                feedback.innerHTML = `<span class="text-green-600">Tuyệt vời! Tất cả đều đúng. Bạn đã phân biệt rõ 3 vai trò!</span>`;
+            } else if (totalItems < 6) {
+                feedback.innerHTML = `<span class="text-yellow-600">Còn ${6 - totalItems} tuyên bố chưa được kéo. Hãy thử lại!</span>`;
+            } else {
+                feedback.innerHTML = `<span class="text-red-600">Đã kéo ${correctCount}/6 đúng. Hãy xem lại sự khác biệt giữa các vai trò!</span>`;
+            }
+        }
+
+        // Logic for Slide 18 (Quiz)
+        window.checkQuizAnswer = function(correctAnswer) {
+            const selected = document.querySelector('input[name="ethicsQuiz"]:checked');
+            const feedbackDiv = document.getElementById('quizFeedback');
+
+            document.querySelectorAll('input[name="ethicsQuiz"]').forEach(radio => {
+                const label = radio.closest('label');
+                label.classList.remove('bg-green-100', 'bg-red-100', 'border-green-500', 'border-red-500');
+                if (radio.value === correctAnswer) {
+                    label.classList.add('bg-green-100', 'border-green-500');
+                }
+            });
+
+            if (selected) {
+                if (selected.value === correctAnswer) {
+                    feedbackDiv.innerHTML = `<span class="text-green-600">${svgIcon('M5 13l4 4L19 7')} Chính xác! Coach cần đặt câu hỏi khai phóng để người được huấn luyện tự chịu trách nhiệm và nhìn ra hậu quả.</span>`;
+                } else {
+                    feedbackDiv.innerHTML = `<span class="text-red-600">${svgIcon('M6 18L18 6M6 6l12 12')} Sai. Đáp án C là phù hợp nhất. Nguyên tắc bảo mật không bảo vệ hành vi phạm pháp, nhưng Coach không được can thiệp (D) hoặc phán xét (A).</span>`;
+                }
+            } else {
+                feedbackDiv.innerHTML = `<span class="text-yellow-600">Vui lòng chọn một đáp án trước khi kiểm tra.</span>`;
+            }
+        }
+
+        // Initialize the presentation
+        document.addEventListener('DOMContentLoaded', () => {
+            renderSlide(currentSlideIndex);
+        });
+    </script>
+</body>
+</html>
